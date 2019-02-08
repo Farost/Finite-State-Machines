@@ -28,8 +28,9 @@ public:
 	int MakeMatrixUser(const int n, const int m);
 	void MakeMatrixTask2();
 	void MakeMatrixTask3();
+	int TestTask3();
 	void PrintMatrix();
-	void ChangeTerminalAll(const char bf, const char nw);
+	int ChangeTerminalAll(const char bf, const char nw);
 	int ChangeTerminal(const int n, const int m, const char nw);
 	void MakeLeftGrammar();
 	void MakeRightGrammar();

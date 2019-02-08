@@ -59,6 +59,7 @@ FSMTable::~FSMTable()
 
 
 int FSMTable::CheckTerminal(const char temp) {
+	if (temp == ' ') return 1;
 	int k = 0;
 	for (int i = 0; i < nstates; ++i)
 		if (temp == states[i]) ++k;
@@ -82,22 +83,25 @@ int FSMTable::MakeStatesArray() {
 	states = new char[nstates];
 	letters = new char[nletters + 2];
 
-	char* temp = new char[10];
-	std::cout << "Type " << nstates << " states' names:" << std::endl;
-	std::cin >> temp;
+	std::string temp = "";
+	do {
+		std::cout << "Type " << nstates << " states' names:" << std::endl;
+		std::cin >> temp;
+	} while (temp.length() != nstates);
 	
 	int i = 0;
 	for (; i < nstates; ++i)
 		states[i] = temp[i];
-	delete[] temp;
 
-	temp = new char[10];
-	std::cout << "Type " << nletters << " letters' names:" << std::endl;
-	std::cin >> temp;
+	temp.clear();
+	do {
+		std::cout << "Type " << nletters << " letters' names:" << std::endl;
+		std::cin >> temp;
+	} while (temp.length() != nletters);
 
 	for (i = 0; i < nletters; ++i)
 		letters[i] = temp[i];
-	delete[] temp;
+
 	letters[nletters] = '!';
 
 	std::cout << "You've entered states: " << std::endl;
@@ -126,13 +130,18 @@ int FSMTable::MakeMatrixUser(const int n, const int m = 2) {
 		for (int j = 0; j <= nletters; ++j) {
 
 			if (j == nletters) do {
+				std::cin.clear();
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 				std::cout << states[i] << letters[j] << ": ";
 				std::cin >> temp;
 			} while (temp != '1' && temp != '0');
 
 			else do {
+				std::cin.clear();
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 				std::cout << states[i] << letters[j] << ": ";
-				std::cin >> temp;
+				int one = 1;
+				std::cin >> std::noskipws >> temp;
 			} while (!CheckTerminal(temp));
 
 			matrix[i][j] = temp;
@@ -160,13 +169,19 @@ void FSMTable::PrintMatrix() {
 }
 
 
-void FSMTable::ChangeTerminalAll(const char bf, const char nw) {
+int FSMTable::ChangeTerminalAll(const char bf, const char nw) {
+	int k = 0;
+	for (int i = 0; i < nstates; ++i) 
+		if (states[i] == nw) ++k;
+	if (k > 0) return 0;
+
 	for (int i = 0; i < nstates; ++i) {
 		if (states[i] == bf) states[i] = nw;
 		for (int j = 0; j < nletters; ++j) {
 			if (matrix[i][j] == bf) matrix[i][j] = nw;
 		}
 	}
+	return 1;
 }
 
 
@@ -293,4 +308,33 @@ void FSMTable::MakeMatrixTask3() {
 
 	matrix[0][nletters] = '0';
 	matrix[1][nletters] = '1';
+}
+
+
+int FSMTable::TestTask3() {
+	char k;
+	
+	std::string str;
+	std::cout << "Give me a word." << std::endl;
+	do std::getline(std::cin, str); while (!str.length());
+	int flag1 = 0, flag2 = 0;
+	for (int i = 0; i < nletters && (!flag2 || !flag1); ++i) {
+		if (matrix[0][i] == 'I' && str[0] == letters[i])
+			++flag1;
+		if (str.length() > 1)
+			if (matrix[1][i] == 'I' && str[1] == letters[i])
+				++flag2;
+	}
+	if (!flag1) return 0;
+	if (!flag2) return -1;
+	
+	if (str.length() > 2)
+		for (int j = 2; j < str.length(); ++j) {
+			flag1 = 0;
+			for (int i = 0; i < nletters && !flag1; ++i)
+				if (matrix[1][i] == 'I' && str[j] == letters[i])
+					++flag1;
+			if (!flag1) return -2;
+		}
+	return 1;
 }
